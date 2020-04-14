@@ -7,21 +7,21 @@ variable ACTIVE_DIRECTORY_PASSWORD {}
 
 #Local values
 locals {
-  virtual_machine_name = "${var.prefix}"
-  subscription_id       = "${var.SUBSCRIPTION_ID}"
-  admin_username       = "${var.ADMIN_USERNAME}"
-  admin_password       = "${var.ADMIN_PASSWORD}"
-  active_directory_username = "${var.ACTIVE_DIRECTORY_USERNAME}"
-  active_directory_password = "${var.ACTIVE_DIRECTORY_PASSWORD}"
-  dc_virtual_machine_count = 1
+  virtual_machine_name           = "${var.prefix}"
+  subscription_id                = "${var.SUBSCRIPTION_ID}"
+  admin_username                 = "${var.ADMIN_USERNAME}"
+  admin_password                 = "${var.ADMIN_PASSWORD}"
+  active_directory_username      = "${var.ACTIVE_DIRECTORY_USERNAME}"
+  active_directory_password      = "${var.ACTIVE_DIRECTORY_PASSWORD}"
+  dc_virtual_machine_count       = 1
   training_virtual_machine_count = 5
-  
+
 }
 
 #For Windows machines
 #locals {
-  #custom_data_params  = "Param($ComputerName = \"${local.virtual_machine_name}\")"
-  #custom_data_content = "${local.custom_data_params} ${file("./files/winrm.ps1")}"
+#custom_data_params  = "Param($ComputerName = \"${local.virtual_machine_name}\")"
+#custom_data_content = "${local.custom_data_params} ${file("./files/winrm.ps1")}"
 #}
 
 #==============================================================================================
@@ -34,6 +34,7 @@ provider "azurerm" {
   # Whilst version is optional, we /strongly recommend/ using it to pin the version of the Provider being used
   #version = "=1.29.0"
   subscription_id = "${local.subscription_id}"
+  features {}
 }
 data "azurerm_subscription" "current" {}
 output "current_subscription_display_name" {
@@ -51,21 +52,21 @@ resource "azurerm_resource_group" "resource_group" {
 #==============================================================================================
 
 resource "azurerm_storage_account" "diagnosticstorageaccount" {
-    name                = "${var.prefix}diagacc"
-    resource_group_name = "${azurerm_resource_group.resource_group.name}"
-    location            = "${var.location}"
-    account_replication_type = "LRS"
-    account_tier = "Standard"
-    account_kind = "StorageV2"
-    
-    
-    network_rules {
-    ip_rules                   = ["127.0.0.1","185.192.235.0/24","185.192.232.0/24"]
+  name                     = "${var.prefix}diagacc"
+  resource_group_name      = "${azurerm_resource_group.resource_group.name}"
+  location                 = "${var.location}"
+  account_replication_type = "LRS"
+  account_tier             = "Standard"
+  account_kind             = "StorageV2"
+
+
+  network_rules {
+    ip_rules                   = ["127.0.0.1", "185.192.235.0/24", "185.192.232.0/24"]
     virtual_network_subnet_ids = ["${azurerm_subnet.network_subnet.id}"]
-    default_action= "Deny"
+    default_action             = "Deny"
   }
-    
-    tags = "${var.tags}"
+
+  tags = "${var.tags}"
 }
 
 #==============================================================================================
@@ -75,7 +76,7 @@ resource "azurerm_storage_account" "diagnosticstorageaccount" {
 
 resource "azurerm_virtual_network" "test" {
   name                = "production"
-  address_space       = [ "10.0.0.0/8" ] 
+  address_space       = ["10.0.0.0/8"]
   location            = "${var.location}"
   resource_group_name = "${azurerm_resource_group.resource_group.name}"
 }
@@ -90,7 +91,7 @@ resource "azurerm_subnet" "network_subnet" {
   virtual_network_name = "${azurerm_virtual_network.test.name}"
   resource_group_name  = "${azurerm_resource_group.resource_group.name}"
   address_prefix       = "10.0.1.0/24"
-  service_endpoints    = ["Microsoft.KeyVault","Microsoft.Storage","Microsoft.EventHub"]
+  service_endpoints    = ["Microsoft.KeyVault", "Microsoft.Storage", "Microsoft.EventHub"]
 }
 output "subnet_name" {
   value = "${azurerm_subnet.network_subnet.name}"
@@ -155,7 +156,7 @@ output "subnet_name" {
 #   depends_on                     = ["azurerm_lb_probe.lb_probe-ext-3389-tcp"]
 #   load_distribution              = "SourceIP"
 #   disable_outbound_snat          = true
-  
+
 # }
 
 

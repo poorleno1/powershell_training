@@ -110,3 +110,60 @@ resource "azurerm_virtual_machine" "dc" {
   tags = "${var.tags}"
 
 }
+
+
+
+resource "azurerm_virtual_machine_extension" "antimalware-dc" {
+  name                       = "IaaSAntimalware"
+  virtual_machine_id         = "${element(azurerm_virtual_machine.dc.*.id, count.index)}"
+  publisher                  = "Microsoft.Azure.Security"
+  type                       = "IaaSAntimalware"
+  type_handler_version       = "1.3"
+  auto_upgrade_minor_version = "true"
+  count                      = "${local.dc_virtual_machine_count}"
+
+  #Require implicit dependency
+  depends_on = ["azurerm_virtual_machine.dc"]
+
+  settings = <<SETTINGS
+    {
+        "AntimalwareEnabled": true,
+        "ReaieimeProtectionEnabled": "true",
+        "ScheduledScanSettings": {
+            "isEnabled": "false",
+            "day": "1",
+            "time": "120",
+            "scanType": "Quick"
+            },
+        "Exclusions": {
+            "Extensions": "",
+            "Paths": "",
+            "Processes": ""
+            }
+    }
+SETTINGS
+
+  tags = "${var.tags}"
+}
+
+
+resource "azurerm_virtual_machine_extension" "dsc-dc" {
+  name                       = "DSC"
+  virtual_machine_id         = "${element(azurerm_virtual_machine.dc.*.id, count.index)}"
+  publisher                  = "Microsoft.Powershell"
+  type                       = "DSC"
+  type_handler_version       = "2.76"
+  auto_upgrade_minor_version = "true"
+  count                      = "${local.dc_virtual_machine_count}"
+
+  #Require implicit dependency
+  depends_on = ["azurerm_virtual_machine.dc"]
+
+  settings = <<SETTINGS
+    {
+        "modulesUrl": true,
+        "configurationFunction": "true",
+    }
+SETTINGS
+  tags     = "${var.tags}"
+}

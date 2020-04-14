@@ -1,6 +1,6 @@
 variable "resource_group" {
   description = "The Azure Resource group"
-  default="powershell-training-rg"
+  default     = "powershell-training-rg"
 }
 
 
@@ -15,13 +15,13 @@ variable "resource_group" {
 
 variable "prefix" {
   description = "The Prefix used for all resources in this example.In case of VM it can be VM Name"
-  default="pwsh"
+  default     = "pwsh"
 }
 
 #Location where resource will be created
 variable "location" {
   description = "The Azure Region in which the resources in this example should exist"
-  default="westeurope"
+  default     = "northeurope"
 }
 
 # #Name of resource group with virtual network
@@ -38,16 +38,16 @@ variable "location" {
 #Name of virtual network subnet
 variable "network_subnet" {
   description = "The Azure Network subnet"
-  default="pwsh_subnet"
+  default     = "pwsh_subnet"
 }
 
 #Global tags which will be assigned to all resources
 variable "tags" {
-  type        = "map"
+  type = "map"
   default = {
-      Project = "Powershell training"
-      Application = "PWSH"
-      Environment="Development"
-    }
+    Project     = "Powershell training"
+    Application = "PWSH"
+    Environment = "Development"
+  }
   description = "Any tags which should be assigned to the resources in this example"
 }
