@@ -157,13 +157,41 @@ resource "azurerm_virtual_machine_extension" "dsc-dc" {
   count                      = "${local.dc_virtual_machine_count}"
 
   #Require implicit dependency
-  depends_on = ["azurerm_virtual_machine.dc"]
+  depends_on = [
+    "azurerm_automation_account.AutomationAccount",
+    "azurerm_virtual_machine.dc"
+  ]
 
-  settings = <<SETTINGS
+  settings           = <<SETTINGS
     {
-        "modulesUrl": true,
-        "configurationFunction": "true",
-    }
+            "WmfVersion": "latest",
+            "ModulesUrl": "https://eus2oaasibizamarketprod1.blob.core.windows.net/automationdscpreview/RegistrationMetaConfigV2.zip",
+            "ConfigurationFunction": "RegistrationMetaConfigV2.ps1\\RegistrationMetaConfigV2",
+            "Privacy": {
+                "DataCollection": ""
+            },
+            "Properties": {
+                "RegistrationKey": {
+                  "UserName": "PLACEHOLDER_DONOTUSE",
+                  "Password": "PrivateSettingsRef:registrationKeyPrivate"
+                },
+                "RegistrationUrl": "${azurerm_automation_account.AutomationAccount.dsc_server_endpoint}",
+                "NodeConfigurationName": "",
+                "ConfigurationMode": "applyAndMonitor",
+                "ConfigurationModeFrequencyMins": 15,
+                "RefreshFrequencyMins": 30,
+                "RebootNodeIfNeeded": false,
+                "ActionAfterReboot": "continueConfiguration",
+                "AllowModuleOverwrite": false
+            }
+        }
 SETTINGS
-  tags     = "${var.tags}"
+  protected_settings = <<PROTECTED_SETTINGS
+    {
+      "Items": {
+        "registrationKeyPrivate" : "${azurerm_automation_account.AutomationAccount.dsc_primary_access_key}"
+      }
+    }
+PROTECTED_SETTINGS
+  tags               = "${var.tags}"
 }

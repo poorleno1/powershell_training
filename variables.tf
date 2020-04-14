@@ -51,3 +51,19 @@ variable "tags" {
   }
   description = "Any tags which should be assigned to the resources in this example"
 }
+
+
+variable "dsc_key" {
+  default = "dsc_registration_key_from_portal"
+}
+
+variable "dsc_endpoint" {
+  default = "dsc_registration_url_from_portal"
+}
+
+variable dsc_config {
+  default = "node_configuration_you_want_applied__can_leave_blank"
+}
+variable dsc_mode {
+  default = "applyAndMonitor"
+}
